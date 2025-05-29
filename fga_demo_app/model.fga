@@ -1,0 +1,24 @@
+model
+  schema 1.1
+
+type user
+
+type group
+  relations
+    define member: [user]
+
+type permission
+  relations
+    define granted_to: [group]
+
+type patient_profile
+  relations
+    define owner: [user]           # The patient themselves
+    define viewer_group: [group#member]   # Groups allowed to view
+    define editor_group: [group#member]   # Groups allowed to edit
+
+    define viewer: owner or viewer_group
+    define editor: editor_group
+
+    define view: viewer or editor
+    define edit: editor
