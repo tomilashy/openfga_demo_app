@@ -9,16 +9,17 @@ type group
 
 type permission
   relations
-    define granted_to: [group]
+    define granted_to: [group#member]
 
 type patient_profile
   relations
-    define owner: [user]           # The patient themselves
-    define viewer_group: [group#member]   # Groups allowed to view
-    define editor_group: [group#member]   # Groups allowed to edit
+    define owner: [user]
+    define viewer_permission: [permission]
+    define editor_permission: [permission]
 
-    define viewer: owner or viewer_group
-    define editor: editor_group
+    # Expand the actual effective users
+    define viewer: owner or granted_to from viewer_permission
+    define editor: granted_to from editor_permission
 
     define view: viewer or editor
     define edit: editor

@@ -20,19 +20,32 @@ async def setup_demo():
     models.add_user_to_group(bob, viewer_group)
     models.add_user_to_group(chris, editor_group)
 
-    # Create profile
+    # Create permissions with names
+    viewer_permission = models.create_permission("view_patient_profile")
+    editor_permission = models.create_permission("edit_patient_profile")
+
+    # Add groups to permissions
+    models.add_group_to_permission(viewer_permission, viewer_group)
+    models.add_group_to_permission(editor_permission, editor_group)
+
+    # Create profile with permission references
     profile_id = models.create_patient_profile(
         patient_id=alice,
-        viewer_group=viewer_group,
-        editor_group=editor_group
+        viewer_permission=viewer_permission,
+        editor_permission=editor_permission
     )
 
     # Push relations to OpenFGA
     await assign_tuple_raw(user=f"user:{alice}", relation="owner", object_=f"patient_profile:{profile_id}")
-    await assign_tuple_raw(user=f"group:{viewer_group}#member", relation="viewer_group", object_=f"patient_profile:{profile_id}")
-    await assign_tuple_raw(user=f"group:{editor_group}#member", relation="editor_group", object_=f"patient_profile:{profile_id}")
-    # await assign_tuple_raw(user=f"group:{viewer_group}", relation="viewer_group", object_=f"patient_profile:{profile_id}")
-    # await assign_tuple_raw(user=f"group:{editor_group}", relation="editor_group", object_=f"patient_profile:{profile_id}")
+    await assign_tuple_raw(user=f"permission:{viewer_permission}", relation="viewer_permission", object_=f"patient_profile:{profile_id}")
+    await assign_tuple_raw(user=f"permission:{editor_permission}", relation="editor_permission", object_=f"patient_profile:{profile_id}")
+
+    # Push granted_to for each group in permission
+    for group_id in models.get_permission(viewer_permission)["granted_group_ids"]:
+        await assign_tuple_raw(user=f"group:{group_id}#member", relation="granted_to", object_=f"permission:{viewer_permission}")
+    for group_id in models.get_permission(editor_permission)["granted_group_ids"]:
+        await assign_tuple_raw(user=f"group:{group_id}#member", relation="granted_to", object_=f"permission:{editor_permission}")
+
     await assign_tuple_raw(user=f"user:{bob}", relation="member", object_=f"group:{viewer_group}")
     await assign_tuple_raw(user=f"user:{chris}", relation="member", object_=f"group:{editor_group}")
 
