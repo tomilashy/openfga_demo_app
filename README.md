@@ -1,4 +1,4 @@
-# FGA Demo App
+# OpenFGA Demo App
 
 A FastAPI-based demo application integrating [OpenFGA](https://openfga.dev/) for fine-grained authorization.  
 This app demonstrates user, group, and patient profile management with OpenFGA-backed access control.
