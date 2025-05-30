@@ -136,6 +136,29 @@ fga_demo_app/
 - All FGA configuration is loaded from `.env`.
 - Make sure your OpenFGA instance and model are set up before running the app.
 
+## Branch Model Differences
+
+This repository contains two branches with different OpenFGA authorization models and corresponding API logic:
+
+- **[`main`](../../tree/main)**: Uses direct group relations on `patient_profile` for access control.
+- **[`use_permission`](../../tree/use_permission)**: Uses intermediate `permission` objects for more flexible, reusable permission assignment.
+
+### Summary of Differences
+
+| Feature                | `main` branch                        | [`use_permission`](../../tree/use_permission) branch      |
+|------------------------|--------------------------------------|----------------------------------------------------------|
+| Group assignment       | Directly to profile                  | Indirect via permission objects                          |
+| Permission objects     | Not used                             | Explicitly created and managed                           |
+| Profile relations      | `viewer_group`, `editor_group`       | `viewer_permission`, `editor_permission`                 |
+| FGA tuple structure    | group → profile                      | group → permission → profile                             |
+| Flexibility            | Simple, less flexible                | More flexible, supports reuse                            |
+
+**Routes are adjusted to match the model:**
+- On `main`, `/setup` assigns groups directly to profiles.
+- On [`use_permission`](../../tree/use_permission), `/setup` creates permission objects, assigns groups to permissions, and links permissions to profiles.
+
+Switch branches as needed to explore both approaches.
+
 ## License
 
 MIT License

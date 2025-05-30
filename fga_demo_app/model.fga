@@ -7,10 +7,6 @@ type group
   relations
     define member: [user]
 
-type permission
-  relations
-    define granted_to: [group]
-
 type patient_profile
   relations
     define owner: [user]           # The patient themselves
